@@ -5,12 +5,14 @@ import (
 	"github.com/francisco-serrano/grpc-app/sum/sumpb"
 	"google.golang.org/grpc"
 	"log"
+	"os"
+	"strconv"
 )
 
-func doUnary(c sumpb.SumServiceClient) {
+func doUnary(c sumpb.SumServiceClient, a, b int32) {
 	request := &sumpb.SumRequest{
-		FirstElement:  10,
-		SecondElement: 5,
+		FirstElement:  a,
+		SecondElement: b,
 	}
 
 	log.Printf("Starting to do gRPC request with values %v and %v", request.FirstElement, request.SecondElement)
@@ -24,6 +26,21 @@ func doUnary(c sumpb.SumServiceClient) {
 }
 
 func main() {
+	args := os.Args[1:]
+	if len(args) != 2 {
+		log.Fatalf("need to cli operands to perform sum")
+	}
+
+	a, err := strconv.Atoi(args[0])
+	if err != nil {
+		log.Fatalf("only integer operands supported")
+	}
+
+	b, err := strconv.Atoi(args[1])
+	if err != nil {
+		log.Fatalf("only integer operands supported")
+	}
+
 	log.Printf("starting gRPC client")
 
 	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
@@ -35,5 +52,5 @@ func main() {
 
 	c := sumpb.NewSumServiceClient(conn)
 
-	doUnary(c)
+	doUnary(c, int32(a), int32(b))
 }

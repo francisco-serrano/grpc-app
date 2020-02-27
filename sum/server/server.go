@@ -23,7 +23,7 @@ func (s *server) Sum(ctx context.Context, req *sumpb.SumRequest) (*sumpb.SumResp
 }
 
 func main() {
-	log.Printf("Attempting to start sum grpc s")
+	log.Printf("Attempting to start sum over grpc")
 
 	lis, err := net.Listen("tcp", "0.0.0.0:50051")
 	if err != nil {

@@ -8,12 +8,12 @@ import (
 )
 
 func doUnary(c sumpb.SumServiceClient) {
-	log.Printf("Starting to do gRPC request")
-
 	request := &sumpb.SumRequest{
 		FirstElement:  10,
 		SecondElement: 5,
 	}
+
+	log.Printf("Starting to do gRPC request with values %v and %v", request.FirstElement, request.SecondElement)
 
 	response, err := c.Sum(context.Background(), request)
 	if err != nil {

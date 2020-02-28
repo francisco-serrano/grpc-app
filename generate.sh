@@ -1,2 +1,4 @@
 protoc greet/greetpb/greet.proto --go_out=plugins=grpc:.
 protoc sum/sumpb/sum.proto --go_out=plugins=grpc:.
+protoc ./decomposition/decompositionpb/decomposition.proto --go_out=plugins=grpc:.
+

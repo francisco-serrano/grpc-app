@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package maximum;
+
+option go_package = "maximumpb";
+
+message MaximumRequest {
+    int32 value = 1;
+}
+
+message MaximumResponse {
+    int32 max_value = 1;
+}
+
+service MaximumService {
+    rpc Maximum(stream MaximumRequest) returns (stream MaximumResponse) {};
+}

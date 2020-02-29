@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package average;
+
+import "google/protobuf/wrappers.proto";
+
+option go_package = "averagepb";
+
+message AverageRequest {
+    int32 number = 1;
+}
+
+message AverageResponse {
+    google.protobuf.DoubleValue result = 1;
+}
+
+service AverageService {
+    rpc Average(stream AverageRequest) returns (AverageResponse) {};
+}

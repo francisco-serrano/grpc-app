@@ -2,11 +2,15 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/francisco-serrano/grpc-app/calculator/calculatorpb"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"io"
 	"log"
+	"math"
 	"net"
 )
 
@@ -113,6 +117,22 @@ func (s *server) Maximum(stream calculatorpb.CalculatorService_MaximumServer) er
 			}
 		}
 	}
+}
+
+func (s *server) SquareRoot(ctx context.Context, req *calculatorpb.SquareRootRequest) (*calculatorpb.SquareRootResponse, error) {
+	log.Printf("SquareRoot invoked over RPC with params: %+v\n", req)
+
+	number := req.GetNumber()
+	if number < 0 {
+		return nil, status.Errorf(
+			codes.InvalidArgument,
+			fmt.Sprintf("received a negative number: %v", number),
+		)
+	}
+
+	return &calculatorpb.SquareRootResponse{
+		NumberRoot: math.Sqrt(float64(number)),
+	}, nil
 }
 
 func main() {

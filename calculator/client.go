@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/francisco-serrano/grpc-app/calculator/calculatorpb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"io"
 	"log"
 	"sync"
@@ -132,6 +135,29 @@ func doBidirectionalStreamingMaximum(c calculatorpb.CalculatorServiceClient, val
 	log.Printf("bidirectional streaming performed successfully\n")
 }
 
+func doErrorUnary(c calculatorpb.CalculatorServiceClient, number int32) {
+	log.Printf("starting to do a SquareRoot Unary RPC...")
+
+	res, err := c.SquareRoot(context.Background(), &calculatorpb.SquareRootRequest{
+		Number: number,
+	})
+	if err != nil {
+		resp, ok := status.FromError(err)
+		if ok {
+			// actual error from gRPC (user error)
+			log.Printf("error message from server: %v\n", resp.Message())
+			fmt.Println(resp.Code())
+			if resp.Code() == codes.InvalidArgument {
+				log.Printf("we probably sent a negative number\n")
+			}
+		} else {
+			log.Fatalf("big error calling SquareRoor: %v", err)
+		}
+	}
+
+	log.Printf("result of square root of %v: %v", number, res.GetNumberRoot())
+}
+
 func main() {
 	address := "localhost:50051"
 
@@ -153,6 +179,9 @@ func main() {
 	//doServerStreamingDecomposition(c, 343)
 	//
 	//doClientStreamingAverage(c, []int32{2, 5, 8, 3, 1, 6, 72, 14, 5})
+	//
+	//doBidirectionalStreamingMaximum(c, []int32{2, 5, 3, 20, 17, 40, 35, 50})
 
-	doBidirectionalStreamingMaximum(c, []int32{2, 5, 3, 20, 17, 40, 35, 50})
+	doErrorUnary(c, 10)
+	doErrorUnary(c, -2)
 }

@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package calculator;
+
+import "google/protobuf/wrappers.proto";
+
+option go_package = "calculatorpb";
+
+message SumRequest {
+    int32 first_element = 1;
+    int32 second_element = 2;
+}
+
+message SumResponse {
+    int32 result = 1;
+}
+
+message AverageRequest {
+    int32 number = 1;
+}
+
+message AverageResponse {
+    google.protobuf.DoubleValue result = 1;
+}
+
+message DecompositionRequest {
+    int32 prime_number = 1;
+}
+
+message DecompositionResponse {
+    int32 prime_element = 1;
+}
+
+message MaximumRequest {
+    int32 value = 1;
+}
+
+message MaximumResponse {
+    int32 max_value = 1;
+}
+
+service CalculatorService {
+    rpc Sum(SumRequest) returns (SumResponse) {};
+    rpc PrimeNumber(DecompositionRequest) returns (stream DecompositionResponse) {};
+    rpc Average(stream AverageRequest) returns (AverageResponse) {};
+    rpc Maximum(stream MaximumRequest) returns (stream MaximumResponse) {};
+}

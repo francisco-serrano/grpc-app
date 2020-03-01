@@ -7,6 +7,7 @@ import (
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
 	"io"
 	"log"
@@ -146,6 +147,9 @@ func main() {
 	s := grpc.NewServer()
 	calculatorpb.RegisterCalculatorServiceServer(s, &server{})
 
+	reflection.Register(s)
+
+	log.Printf("running server on %s...", address)
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("error while trying to serve application: %v", err)
 	}

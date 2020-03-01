@@ -131,6 +131,38 @@ func (s *server) UpdateBlog(ctx context.Context, req *blogpb.UpdateBlogRequest) 
 	}, nil
 }
 
+func (s *server) DeleteBlog(ctx context.Context, req *blogpb.DeleteBlogRequest) (*blogpb.DeleteBlogResponse, error) {
+	log.Println("DeleteBlog request")
+
+	oid, err := primitive.ObjectIDFromHex(req.GetBlogId())
+	if err != nil {
+		return nil, status.Errorf(
+			codes.InvalidArgument,
+			fmt.Sprintf("Cannot Parse ID"),
+		)
+	}
+
+	filter := bson.M{"_id": oid}
+	res, deleteErr := s.collection.DeleteOne(context.Background(), filter)
+	if deleteErr != nil {
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("cannot delete object in MongoDB: %v", deleteErr),
+		)
+	}
+
+	if res.DeletedCount == 0 {
+		return nil, status.Errorf(
+			codes.NotFound,
+			fmt.Sprintf("cannot find blog in MongoDB: %v", deleteErr),
+		)
+	}
+
+	return &blogpb.DeleteBlogResponse{
+		BlogId: req.GetBlogId(),
+	}, nil
+}
+
 func dataToBlogPb(data *blogItem) *blogpb.Blog {
 	return &blogpb.Blog{
 		Id:       data.ID.Hex(),

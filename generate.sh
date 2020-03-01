@@ -4,4 +4,4 @@ protoc decomposition/decompositionpb/decomposition.proto --go_out=plugins=grpc:.
 protoc average/averagepb/average.proto --go_out=plugins=grpc:.
 protoc maximum/maximumpb/maximum.proto --go_out=plugins=grpc:.
 protoc calculator/calculatorpb/calculator.proto --go_out=plugins=grpc:.
-
+protoc blog/blogpb/blog.proto --go_out=plugins=grpc:.

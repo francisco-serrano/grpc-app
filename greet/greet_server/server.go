@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"github.com/francisco-serrano/grpc-app/greet/greetpb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/status"
 	"io"
 	"log"
 	"net"
@@ -87,6 +90,25 @@ func (*server) GreetEveryone(stream greetpb.GreetService_GreetEveryoneServer) er
 	}
 }
 
+func (s *server) GreetWithDeadline(ctx context.Context, req *greetpb.GreetWithDeadlineRequest) (*greetpb.GreetWithDeadlineResponse, error) {
+	fmt.Printf("GreetWithDeadline function was invoked with %v\n", req)
+
+	for i := 0; i < 3; i++ {
+		if ctx.Err() == context.Canceled {
+			log.Printf("the client cancelled the request")
+			return nil, status.Error(codes.Canceled, "the client cancelled the request")
+		}
+
+		time.Sleep(1 * time.Second)
+	}
+
+	result := "Hello " + req.GetGreeting().GetFirstName()
+
+	return &greetpb.GreetWithDeadlineResponse{
+		Result: result,
+	}, nil
+}
+
 func main() {
 	fmt.Println("Hello world")
 
@@ -95,7 +117,20 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	s := grpc.NewServer()
+	var opts []grpc.ServerOption
+
+	tls := true
+	if tls {
+		certFile := "./ssl/server.crt"
+		keyFile := "./ssl/server.pem"
+		creds, sslErr := credentials.NewServerTLSFromFile(certFile, keyFile)
+		if sslErr != nil {
+			log.Fatalf("failed loading certificates; %v", sslErr)
+		}
+		opts = append(opts, grpc.Creds(creds))
+	}
+
+	s := grpc.NewServer(opts...)
 	greetpb.RegisterGreetServiceServer(s, &server{})
 
 	if err := s.Serve(lis); err != nil {
